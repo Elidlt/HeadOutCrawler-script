@@ -101,8 +101,12 @@ def get_productItems(pId, ParentElement):
     if combo:
         primaryCollection = ParentElement['name']
     else:
-        primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+        print(ParentElement)
+        if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+            primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
             'displayName']
+        else:
+            primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['name']
     tourData = json_data_2['props']['initialState']['pricingStore']['byProductId'][f'{pId}']['inventoryMap']
     tourNames = {t['id']: t['parentProductName'] for t in
                  json_data_2['props']['initialState']['pricingStore']['byProductId'][f'{pId}']['tours']}
@@ -128,7 +132,7 @@ def get_productItems(pId, ParentElement):
 
 
 def insert_data(data_list, run_time):
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect('tours.db')
     cursor = conn.cursor()
     rows = []
     for data in data_list:
@@ -166,7 +170,7 @@ def main():
     cnt = 0
     for pId in products:
 
-        if 5 > cnt:
+        if 55 > cnt > 40:
             cnt += 1
             df_data.append(get_productItems(pId, products[pId]))
         else:
@@ -181,7 +185,7 @@ def main():
 
 
 def initDB():
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect('tours.db')
     cursor = conn.cursor()
     cursor.execute('''
                 CREATE TABLE IF NOT EXISTS tours (
@@ -213,9 +217,9 @@ if __name__ == '__main__':
     cycle = os.getenv("CYCLE")
     if bool(debug):
         stdout_logger.setLevel(logging.DEBUG)
-    if not os.path.exists("db.sqlite"):
+    if not os.path.exists("tours.db"):
         stdout_logger.debug("Initialize Database for the first time...")
-        initDB()
+    initDB()
 
     while True:
         try:
