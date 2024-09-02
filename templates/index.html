@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expandable Tour List with Details</title>
+    <style>
+        body {
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            align-items: flex-start; /* Allow scrolling */
+            min-height: 20vh;
+            background-color: #f0f0f0;
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+        .container {
+
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            margin-top: 120px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+        li.expanded > ul,
+        li.expanded > table {
+            display: block;
+        }
+        li > ul,
+        li > table {
+            display: none;
+            padding-left: 20px;
+        }
+        li > ul > li {
+            background-color: #0056b3;
+            cursor: default;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container">
+        <ul id="category-list"></ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const categoryList = document.getElementById('category-list');
+
+            // Fetch the list of categories from the backend
+            fetch('/get-categories')
+                .then(response => response.json())
+                .then(categories => {
+                    categories.forEach(category => {
+                        const li = document.createElement('li');
+                        li.textContent = category.category;
+                        li.dataset.category = category.category;
+
+                        li.addEventListener('click', function() {
+                            if (!li.classList.contains('expanded')) {
+                                fetchMainCollections(li.dataset.category, li);
+                            } else {
+                                toggleExpand(li);
+                            }
+                        });
+
+                        categoryList.appendChild(li);
+                    });
+                });
+
+            function fetchMainCollections(category, li) {
+                fetch(`/get-main-collections/${category}`)
+                    .then(response => response.json())
+                    .then(mainCollections => {
+                        const lastList = li.querySelector("ul");
+                        if (lastList){
+                            li.removeChild(lastList);
+                        }
+                        const subList = document.createElement('ul');
+
+                        mainCollections.forEach(mc => {
+                            const subLi = document.createElement('li');
+                            subLi.textContent = mc.main_collection;
+                            subLi.dataset.mainCollection = mc.main_collection;
+
+                            subLi.addEventListener('click', function(event) {
+                                event.stopPropagation();
+                                if (!subLi.classList.contains('expanded')) {
+                                    fetchNames(subLi.dataset.mainCollection, subLi);
+                                } else {
+                                    toggleExpand(subLi);
+                                }
+                            });
+
+                            subList.appendChild(subLi);
+                        });
+
+                        li.appendChild(subList);
+                        toggleExpand(li);
+                    });
+            }
+            function processAndUniqueData(dataList) {
+                const uniqueDataMap = {};
+
+                dataList.forEach((item) => {
+                    const name = item.name;
+                    const prices = JSON.parse(item.prices); // Parse the JSON string to an object
+
+                    if (!uniqueDataMap[name]) {
+                        uniqueDataMap[name] = {
+                            name: name,
+                            prices: [
+                                prices.ADULT,  // minPrice for ADULT
+                                prices.ADULT,  // maxPrice for ADULT
+                                prices.CHILD,  // minPrice for CHILD
+                                prices.CHILD   // maxPrice for CHILD
+                            ],
+                            change_7d : item.change_7d,
+                            change_30d : item.change_30d
+
+                        };
+                    } else {
+                        uniqueDataMap[name].prices[0] = Math.min(uniqueDataMap[name].prices[0], prices.ADULT);
+                        uniqueDataMap[name].prices[1] = Math.max(uniqueDataMap[name].prices[1], prices.ADULT);
+                        uniqueDataMap[name].prices[2] = Math.min(uniqueDataMap[name].prices[2], prices.CHILD);
+                        uniqueDataMap[name].prices[3] = Math.max(uniqueDataMap[name].prices[3], prices.CHILD);
+                    }
+                });
+
+                // Convert the map back to an array
+                return Object.values(uniqueDataMap);
+            }
+
+
+            function fetchNames(mainCollection, subLi) {
+                fetch(`/get-names/${mainCollection}`)
+                    .then(response => response.json())
+                    .then(names => {
+                        const last_table = subLi.querySelector("table");
+                        if (last_table) { // Check if the table exists
+                            subLi.removeChild(last_table[0]); // Remove the table
+                        }
+                        const table = document.createElement('table');
+                        const headerRow = document.createElement('tr');
+
+                        ['Name', 'MinPrice','MaxPrice', 'Change in 7d', 'Change in 30d'].forEach(headerText => {
+                            const th = document.createElement('th');
+                            th.textContent = headerText;
+                            headerRow.appendChild(th);
+                        });
+
+                        table.appendChild(headerRow);
+                        const uniqueData = processAndUniqueData(names);
+                        uniqueData.forEach(nameData => {
+
+                            const row = document.createElement('tr');
+                            const nameCell = document.createElement('td');
+                            nameCell.textContent = nameData.name;
+                            const min_priceCell = document.createElement('td');
+                            min_priceCell.textContent = `$${nameData.prices[0].toFixed(2)}`;
+
+                            const max_priceCell = document.createElement('td');
+                            max_priceCell.textContent = `$${nameData.prices[1].toFixed(2)}`;
+
+                            const change7dCell = document.createElement('td');
+                            change7dCell.textContent = `${nameData.change_7d.toFixed(2)}%`;
+
+                            const change30dCell = document.createElement('td');
+                            change30dCell.textContent = `${nameData.change_30d.toFixed(2)}%`;
+
+                            row.appendChild(nameCell);
+
+                            row.appendChild(min_priceCell);
+                            row.appendChild(max_priceCell);
+                            row.appendChild(change7dCell);
+                            row.appendChild(change30dCell);
+                            table.appendChild(row);
+                        });
+
+                        subLi.appendChild(table);
+                        toggleExpand(subLi);
+                    });
+            }
+
+            function toggleExpand(li) {
+                li.classList.toggle('expanded');
+                const expandedElements = li.querySelectorAll('ul, table');
+                expandedElements.forEach(el => {
+                    el.style.display = li.classList.contains('expanded') ? 'block' : 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

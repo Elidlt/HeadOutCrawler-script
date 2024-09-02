@@ -1,0 +1,170 @@
+2024-09-02 05:54:16,963  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 224, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 171, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 104, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:54:39,741  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 224, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 171, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 104, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:56:45,637  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:57:38,396  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:58:12,604  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:58:42,745  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:59:05,817  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    try:
+        ^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 05:59:31,056  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    try:
+        ^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 06:00:00,951  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    try:
+        ^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 06:00:31,814  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    try:
+        ^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 06:01:00,059  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 225, in <module>
+    try:
+        ^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 172, in main
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 105, in get_productItems
+    if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2024-09-02 06:04:30,250  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: table tours has no column named last_update
+2024-09-02 06:06:11,017  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: no such table: tours
+2024-09-02 06:06:35,507  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: no such table: tours
+2024-09-02 06:07:00,195  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: no such table: tours
+2024-09-02 06:07:20,092  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: no such table: tours
+2024-09-02 06:07:39,442  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 228, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 184, in main
+    insert_data(flattened_list, round(time.time()))
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
+    cursor.executemany('''
+sqlite3.OperationalError: no such table: tours
