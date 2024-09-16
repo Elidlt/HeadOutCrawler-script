@@ -1,0 +1,27 @@
+.calendar {
+    max-width: 60%;
+    min-width: 30%;
+    width: 30%;
+}
+.calendar table {
+    width: 30%;
+}
+.calendar th,
+.calendar td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+}
+.calendar .today {
+    background-color: #f8f9fa;
+}
+.calendar .colored {
+    background-color: #007bff;
+    color: white;
+}
+.calendar th {
+    background-color: #e9ecef;
+}
+.calendar .day {
+    cursor: pointer;
+}
