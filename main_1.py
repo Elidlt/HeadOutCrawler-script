@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import sys
 
@@ -104,7 +105,7 @@ def get_productItems(pId, ParentElement):
         print(ParentElement)
         if json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection']:
             primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['primaryCollection'][
-            'displayName']
+                'displayName']
         else:
             primaryCollection = json_data_2['props']['initialState']['productStore']['byId'][pId]['name']
     tourData = json_data_2['props']['initialState']['pricingStore']['byProductId'][f'{pId}']['inventoryMap']
@@ -113,22 +114,47 @@ def get_productItems(pId, ParentElement):
     tourInfo = {t['id']: t['variantInfo'] for t in
                 json_data_2['props']['initialState']['pricingStore']['byProductId'][f'{pId}']['tours']}
     toursData = []
+
     for day in tourData:
+
         tours = tourData[day]
         for tId in tours:
-            priceList = tours[tId][0]['priceProfile']['persons']
-            prices = {priceList[i]['type']: priceList[i]['listingPrice'] for i in range(len(priceList))}
-            toursData.append({
-                "baseId": pId,
-                "tourId": int(tId), "category": category,
-                "MainCollection": primaryCollection,
-                "name": tourNames[int(tId)],
-                "info": tourInfo[int(tId)],
-                "date": day,
-                "start": tours[tId][0]['startTime'], "end": tours[tId][0]['endTime'],
-                "price": prices, "currency": 'AED', "img": imageUrl['url'],
-                "combo": combo})
+            print(tId)
+            for timeProfile in tours[tId]:
+                print(timeProfile)
+                priceList = timeProfile['priceProfile']['persons']
+                prices = {priceList[i]['type']: priceList[i]['listingPrice'] for i in range(len(priceList))}
+                paxList = timeProfile['paxAvailability']
+                pax = {paxList[i]['paxTypes'][0]:paxList[i]['remaining'] for i in range(len(paxList))}
+
+                toursData.append({
+                    "baseId": pId,
+                    "tourId": int(tId), "category": category,
+                    "MainCollection": primaryCollection,
+                    "name": tourNames[int(tId)],
+                    "info": tourInfo[int(tId)],
+                    "date": day,
+                    "start": timeProfile['startTime'], "end": timeProfile['endTime'],
+                    "price": prices,"pax":pax,
+                    "currency": 'AED', "img": imageUrl['url'],
+                    "combo": combo})
     return toursData
+
+
+def generateUID(data):
+    date_str, time1_str, time2_str = data['date'], data['start'], data['end']
+    # Combine date and time strings into a single string
+    combined_string = f"{date_str}{time1_str}{time2_str}"
+    # Encode the combined string to bytes
+    encoded_string = combined_string.encode('utf-8')
+
+    # Create a hash of the encoded string
+    hash_object = hashlib.sha256(encoded_string)
+
+    # Convert the hash to a hexadecimal string and use the first 16 characters for uniqueness
+    unique_number = hash_object.hexdigest()[:16]
+
+    return unique_number
 
 
 def insert_data(data_list, run_time):
@@ -136,7 +162,9 @@ def insert_data(data_list, run_time):
     cursor = conn.cursor()
     rows = []
     for data in data_list:
+        print("INSERTING Date:", data['date'])
         rows.append((
+
             data['baseId'],
             data['tourId'],
             data['category'],
@@ -147,6 +175,7 @@ def insert_data(data_list, run_time):
             data['start'],
             data['end'],
             json.dumps(data['price']),
+            json.dumps(data['pax']),
             data['currency'],
             data['img'],
             data['combo'],
@@ -154,9 +183,9 @@ def insert_data(data_list, run_time):
         ))
     cursor.executemany('''
         INSERT OR REPLACE INTO tours (base_tour_id,tour_id,category,
-        main_collection, name, info, date, start_time, end_time, price,
+        main_collection, name, info, date, start_time, end_time, price,pax,
          currency,img_url,combo, last_update)
-        VALUES (?,?, ?, ?, ?, ?, ?, ?, ? , ? , ? , ?, ?, ?)
+        VALUES (?,?, ?, ?, ?, ?, ?, ?, ? , ? , ? , ?, ?, ?, ?)
     ''', rows)
 
     # Commit the transaction
@@ -169,17 +198,18 @@ def main():
     df_data = []
     cnt = 0
     for pId in products:
-
-        if 55 > cnt > 40:
+        #if 57 > cnt > 25:
+        if pId == '8583':
             cnt += 1
             df_data.append(get_productItems(pId, products[pId]))
         else:
             cnt += 1
 
     flattened_list = [item for sublist in df_data for item in sublist]
+
     # Step 2: Convert to DataFrame
     df = pd.DataFrame(flattened_list)
-
+    df.to_csv("TEST.csv")
     # Step 3: Save to CSV
     insert_data(flattened_list, round(time.time()))
 
@@ -198,16 +228,35 @@ def initDB():
                     date TEXT,
                     start_time TEXT,
                     end_time TEXT,
-                    price REAL,
+                    price TEXT,
+                    pax TEXT,
                     currency TEXT,
                     img_url TEXT,
                     combo BOOL,
                     last_update INTEGER,
-                    PRIMARY KEY (tour_id, last_update)
+                    PRIMARY KEY (tour_id , date , start_time , end_time , last_update )
                 )
             ''')
     conn.commit()
     conn.close()
+
+
+def Run_Crawler():
+    load_dotenv()
+    debug = os.getenv('DEBUG')
+    if bool(debug):
+        stdout_logger.setLevel(logging.DEBUG)
+    if not os.path.exists("tours.db"):
+        stdout_logger.debug("Initialize Database for the first time...")
+    initDB()
+    try:
+        timestamp = round(time.time())
+        stdout_logger.info(f"Run New Cycle in {timestamp}...")
+        main()
+    except Exception as e:
+        stdout_logger.info("An error Happened")
+        print(e)
+        error_logger.error("an error happened...", exc_info=True)
 
 
 # Insert the data
@@ -229,6 +278,6 @@ if __name__ == '__main__':
         except Exception as e:
             stdout_logger.info("An error Happened")
             print(e)
-            error_logger.error("an error happened..." , exc_info=True)
+            error_logger.error("an error happened...", exc_info=True)
 
         time.sleep(int(cycle))

@@ -4,74 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expandable Tour List with Details</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            display: flex;
-            text-align: center;
-            justify-content: center;
-            align-items: flex-start; /* Allow scrolling */
-            min-height: 20vh;
             background-color: #f0f0f0;
-            overflow-y: auto; /* Enable vertical scrolling */
-        }
-        .container {
-
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
-            margin-top: 120px;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .expandable-content {
+            display: none;
         }
-        li {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #007bff;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            position: relative;
-        }
-        li.expanded > ul,
-        li.expanded > table {
+        .expanded .expandable-content {
             display: block;
         }
-        li > ul,
-        li > table {
-            display: none;
-            padding-left: 20px;
-        }
-        li > ul > li {
-            background-color: #0056b3;
-            cursor: default;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
     </style>
-
 </head>
 <body>
-
-    <div class="container">
-        <ul id="category-list"></ul>
+    <div class="d-flex">
+        <div class="sidebar">
+            <div class="nav flex-column">
+                <ul id="category-list" class="nav flex-column"></ul>
+            </div>
+        </div>
+        <div class="container mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Expandable Menu</h5>
+                    <p class="card-text">Click on the items in the sidebar to expand and see more details.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -84,7 +45,8 @@
                 .then(categories => {
                     categories.forEach(category => {
                         const li = document.createElement('li');
-                        li.textContent = category.category;
+                        li.innerHTML = `<a href="#">${category.category}</a>`;
+                        li.classList.add('nav-item');
                         li.dataset.category = category.category;
 
                         li.addEventListener('click', function() {
@@ -103,15 +65,18 @@
                 fetch(`/get-main-collections/${category}`)
                     .then(response => response.json())
                     .then(mainCollections => {
-                        const lastList = li.querySelector("ul");
-                        if (lastList){
-                            li.removeChild(lastList);
+                        let subList = li.querySelector("ul");
+                        if (!subList) {
+                            subList = document.createElement('ul');
+                            subList.classList.add('nav', 'flex-column', 'ms-3', 'expandable-content');
+                            li.appendChild(subList);
                         }
-                        const subList = document.createElement('ul');
+                        subList.innerHTML = '';
 
                         mainCollections.forEach(mc => {
                             const subLi = document.createElement('li');
-                            subLi.textContent = mc.main_collection;
+                            subLi.innerHTML = `<a href="#">${mc.main_collection}</a>`;
+                            subLi.classList.add('nav-item');
                             subLi.dataset.mainCollection = mc.main_collection;
 
                             subLi.addEventListener('click', function(event) {
@@ -126,10 +91,10 @@
                             subList.appendChild(subLi);
                         });
 
-                        li.appendChild(subList);
                         toggleExpand(li);
                     });
             }
+
             function processAndUniqueData(dataList) {
                 const uniqueDataMap = {};
 
@@ -162,65 +127,53 @@
                 return Object.values(uniqueDataMap);
             }
 
-
             function fetchNames(mainCollection, subLi) {
                 fetch(`/get-names/${mainCollection}`)
                     .then(response => response.json())
                     .then(names => {
-                        const last_table = subLi.querySelector("table");
-                        if (last_table) { // Check if the table exists
-                            subLi.removeChild(last_table[0]); // Remove the table
+                        let table = subLi.querySelector("table");
+                        if (!table) {
+                            table = document.createElement('table');
+                            table.classList.add('table', 'table-striped', 'mt-2', 'expandable-content');
+                            subLi.appendChild(table);
                         }
-                        const table = document.createElement('table');
-                        const headerRow = document.createElement('tr');
+                        table.innerHTML = '';
 
-                        ['Name', 'MinPrice','MaxPrice', 'Change in 7d', 'Change in 30d'].forEach(headerText => {
+                        const headerRow = document.createElement('tr');
+                        ['Name', 'MinPrice', 'MaxPrice', 'Change in 7d', 'Change in 30d'].forEach(headerText => {
                             const th = document.createElement('th');
                             th.textContent = headerText;
                             headerRow.appendChild(th);
                         });
-
                         table.appendChild(headerRow);
+
                         const uniqueData = processAndUniqueData(names);
                         uniqueData.forEach(nameData => {
-
                             const row = document.createElement('tr');
-                            const nameCell = document.createElement('td');
-                            nameCell.textContent = nameData.name;
-                            const min_priceCell = document.createElement('td');
-                            min_priceCell.textContent = `$${nameData.prices[0].toFixed(2)}`;
-
-                            const max_priceCell = document.createElement('td');
-                            max_priceCell.textContent = `$${nameData.prices[1].toFixed(2)}`;
-
-                            const change7dCell = document.createElement('td');
-                            change7dCell.textContent = `${nameData.change_7d.toFixed(2)}%`;
-
-                            const change30dCell = document.createElement('td');
-                            change30dCell.textContent = `${nameData.change_30d.toFixed(2)}%`;
-
-                            row.appendChild(nameCell);
-
-                            row.appendChild(min_priceCell);
-                            row.appendChild(max_priceCell);
-                            row.appendChild(change7dCell);
-                            row.appendChild(change30dCell);
+                            row.innerHTML = `
+                                <td>${nameData.name}</td>
+                                <td>$${nameData.prices[0].toFixed(2)}</td>
+                                <td>$${nameData.prices[1].toFixed(2)}</td>
+                                <td>${nameData.change_7d.toFixed(2)}%</td>
+                                <td>${nameData.change_30d.toFixed(2)}%</td>
+                            `;
                             table.appendChild(row);
                         });
 
-                        subLi.appendChild(table);
                         toggleExpand(subLi);
                     });
             }
 
             function toggleExpand(li) {
                 li.classList.toggle('expanded');
-                const expandedElements = li.querySelectorAll('ul, table');
+                const expandedElements = li.querySelectorAll('.expandable-content');
                 expandedElements.forEach(el => {
                     el.style.display = li.classList.contains('expanded') ? 'block' : 'none';
                 });
             }
         });
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

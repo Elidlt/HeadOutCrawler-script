@@ -168,3 +168,67 @@ Traceback (most recent call last):
   File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 155, in insert_data
     cursor.executemany('''
 sqlite3.OperationalError: no such table: tours
+2024-09-11 23:02:12,979  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 232, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 186, in main
+    df.to_csv("TEST.csv")
+  File "C:\ProgramData\anaconda3\Lib\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ProgramData\anaconda3\Lib\site-packages\pandas\core\generic.py", line 3967, in to_csv
+    return DataFrameRenderer(formatter).to_csv(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ProgramData\anaconda3\Lib\site-packages\pandas\io\formats\format.py", line 1014, in to_csv
+    csv_formatter.save()
+  File "C:\ProgramData\anaconda3\Lib\site-packages\pandas\io\formats\csvs.py", line 251, in save
+    with get_handle(
+         ^^^^^^^^^^^
+  File "C:\ProgramData\anaconda3\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+PermissionError: [Errno 13] Permission denied: 'TEST.csv'
+2024-09-12 00:39:33,304  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 253, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 198, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 123, in get_productItems
+    priceList = timeProfile['priceProfile']['persons']
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+2024-09-12 00:40:42,685  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 254, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 199, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 124, in get_productItems
+    priceList = timeProfile['priceProfile']['persons']
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+2024-09-12 00:41:09,165  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 255, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 200, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 125, in get_productItems
+    priceList = timeProfile['priceProfile']['persons']
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+2024-09-16 01:50:21,461  - ERROR - an error happened...
+Traceback (most recent call last):
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 279, in <module>
+    main()
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 207, in main
+    df_data.append(get_productItems(pId, products[pId]))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dlt\Projects\Python\HeadOutCrawler-script\main_1.py", line 128, in get_productItems
+    for p, pax in zip(prices.keys(), paxList):
+RuntimeError: dictionary changed size during iteration

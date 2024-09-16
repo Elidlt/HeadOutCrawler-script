@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Map</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='calender/calender.css') }}">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-dialog {
+            max-width: 80%;
+            display: flex;
+
+            margin: 1.75rem auto;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+        .header {
+            width: 100%;
+            background-color: #227B94;
+            color: #FFDC7F;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            font-size: 24px;
+        }
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .nav-item {
+            position: relative;
+        }
+        .sidebar {
+
+            position:fixed;
+            min-width: 200px;
+            max-width: 450px;
+            left: -450px; /* Hide the sidebar initially */
+            height: 85%;
+            background-color: #227B94;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: small;
+            color: #FFDC7F;
+            border-bottom-right-radius: 20px;
+            border-top-right-radius: 20px;
+            transition: left 0.6s;
+            overflow: auto;
+
+        }
+        .sidebar.open {
+            left: 0;
+
+        }
+        .cruiser {
+            font-size: small;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background-color: #16325B;
+            color: white;
+            text-align: center;
+            align-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .cruiser:hover{
+            background-color: #227B94;
+        }
+        .sidebar .nav-item {
+            padding: 10px;
+            color: #FFDC7F;
+        }
+
+        .nav-link {
+            color: #78B7D0 !important;
+        }
+        .nav-link:hover {
+            background-color: #227B94;
+        }
+
+        .expandable-content {
+            transition: height 0.5s ease;
+            overflow: hidden;
+        }
+        a {
+            color: #FFDC7F;
+        }
+        a:hover{
+            color: #FBAC4F;
+        }
+        .container-main {
+             /* Adjust this value to align with the sidebar width */
+            transition: margin-left 0.6s;
+            background-color: #ffffff; /* Background color */
+            width: 85%;
+            height: 85%;
+            overflow: auto;
+        }
+
+        .sidebar.open ~ .container-main {
+            margin-left: auto; /* Adjust this value to align with the sidebar width */
+            transition: margin-left 0.6s;
+        }
+        .refresh{
+        cursor: pointer;
+        }
+        .refresh:hover{
+            background-color: #16325B ;
+        }
+        .tourRow:hover{
+            background-color: #78B7D0;
+            cursor: pointer;
+        }
+        .infoModal{
+            display: flex;
+            width: 30%;
+
+            background-color: #ffffff; /* Optional: for visual reference */
+        }
+        .myChart {
+
+            width: 50%;
+            height: 50%; /* Maintains aspect ratio */
+        }
+        .alert-fade {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .alert-show {
+            opacity: 1;
+        }
+
+        .row {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+        }
+        .tourInfo-container{
+            display: flex;
+            flex-direction: column;
+            height: 80%;
+        }
+        .mosaic-container {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 10px;
+            max-width: 100%;
+            margin: auto;
+
+        }
+        .mosaic-item {
+            position: relative;
+            background-color: #f0f0f0;
+            font-size: 1vh;
+            width: 6vh;
+            height: 4vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .mosaic-item:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+        }
+        .mosaic-item .corner-number {
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            width: 1vh;
+            height: 1vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="cruiser" id="cruiser" >≡</div>
+        <div style="color: white">Your Brand</div>
+        <div class="header-right">
+            <span class="refresh" id="refreshButton">🔄</span>
+            <span style="font-size: 20px;color: white" id="liveClock"></span>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="sidebar" id="sidebar">
+            <nav class="nav flex-column ">
+                <ul id="category-list" class="nav flex-column"></ul>
+            </nav>
+        </div>
+        <div class="container-main" id="mainData">
+            <h1>Main Container</h1>
+
+        </div>
+    </div>
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p>Updating database, please wait...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog" >
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 id="tourName_info" class="modal-title">Modal Heading</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="tourInfo-container" id="modalContent">
+
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert -->
+    <div id="alertContainer"></div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('refreshButton').addEventListener('click', function() {
+                var loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                loadingModal.show();
+
+                fetch('/update_database')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'done') {
+                            loadingModal.hide();
+                            showAlert('Database update completed!', 'success', true);
+                        }
+                    })
+                    .catch(error => {
+                        loadingModal.hide();
+                        showAlert('An error occurred while updating the database.', 'danger', false);
+                        console.error('Error:', error);
+                    });
+            });
+
+            function showAlert(message, type, reload) {
+                var alertContainer = document.getElementById('alertContainer');
+                var alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-fade`;
+                alertDiv.role = 'alert';
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertContainer.appendChild(alertDiv);
+
+                // Show the alert with fade-in effect
+                setTimeout(() => alertDiv.classList.add('alert-show'), 10);
+
+                // Automatically hide the alert after 3 seconds
+                setTimeout(() => {
+                    alertDiv.classList.remove('alert-show');
+                    setTimeout(() => {
+                        alertDiv.remove();
+                        if (reload) {
+                            location.reload();
+                        }
+                    }, 500);  // Wait for fade-out transition
+                }, 3000);
+            }
+        });
+    </script>
+    <script>
+            function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('liveClock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+            setInterval(updateClock, 1000);
+            updateClock();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cruiser = document.getElementById('cruiser');
+            const sidebar = document.getElementById('sidebar');
+            let timeout;
+
+            cruiser.addEventListener('click', () => {
+                if(!sidebar.classList.contains('open')) {
+                    sidebar.classList.add('open');
+                }else {
+                    sidebar.classList.remove('open');
+                }
+
+
+            });
+
+
+        });
+    </script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const categoryList = document.getElementById('category-list');
+            let timeoutId;
+            // Fetch the list of categories from the backend
+            fetch('/get-categories')
+                .then(response => response.json())
+                .then(categories => {
+                    categories.forEach(category => {
+                        const li = document.createElement('li');
+                        let title = document.createElement("a");
+                        title.style.color = "white";
+                        title.href="#";
+                        title.innerText =`${category.category}`;
+                        li.appendChild(title) ;
+                        li.classList.add('nav-item');
+                        li.dataset.category = category.category;
+                        title.addEventListener('click',  () =>  {
+                            console.log("Clicked....")
+                            collapseAll()
+                            if (!li.classList.contains('expanded')) {
+                                fetchMainCollections(li.dataset.category, li);
+
+                            }
+
+                        });
+
+                        li.addEventListener('mouseleave',  () => {
+                            console.log("Leaving..."+li.dataset.category)
+                            collapseAll();
+
+                        });
+
+                        categoryList.appendChild(li);
+                    });
+                });
+            function collapseAll(){
+                console.log("Collapse All")
+                let items = document.getElementById("category-list").querySelectorAll("li");
+                items.forEach(item =>{
+                    let content = item.querySelector('.expandable-content');
+                    $(content).collapse('hide');
+                    item.classList.remove('expanded');
+                })
+            }
+            function fetchMainCollections(category, li) {
+                fetch(`/get-main-collections/${category}`)
+                    .then(response => response.json())
+                    .then(mainCollections => {
+                        let subList = li.querySelector("ul");
+                        if (!subList) {
+                            subList = document.createElement('ul');
+                            subList.classList.add('nav', 'flex-column', 'ms-3','expandable-content', 'list-unstyled', 'collapse');
+                            li.appendChild(subList);
+
+                        }else{
+                            subList.innerHTML = '';
+                        }
+
+
+                        mainCollections.forEach(mc => {
+                            const subLi = document.createElement('li');
+                            subLi.innerHTML = `<a href="#">> ${mc.main_collection}</a>`;
+                            subLi.classList.add('nav-item');
+                            subLi.dataset.mainCollection = mc.main_collection;
+                            subLi.addEventListener('click', function(event) {
+                                event.stopPropagation();
+                                if (!subLi.classList.contains('expanded')) {
+                                    //fetchNames(subLi.dataset.mainCollection, subLi);
+                                    fetchNameNew(subLi.dataset.mainCollection, subLi);
+                                } else {
+                                    toggleExpand(subLi);
+                                }
+                            });
+                            subLi.addEventListener("click" ,()=>{
+                               console.log(mc.main_collection)
+                            });
+
+
+
+                            subList.appendChild(subLi);
+                        });
+
+
+
+                    }).then(()=>{
+                        toggleExpand(li);
+                });
+
+            }
+            function chartDataExtract(arr) {
+                const labels = [];
+                const values = [];
+                const dateMap = new Map();
+                const result = new Map();
+                let count = 0;
+                let priceNames = [];
+                const datasets = {};
+                //result.set('count',0);
+                arr.forEach(obj => {
+                    const date = new Date(obj.last_update*1000).toISOString().split('T')[0];
+                    // If the date is not already in the map, add the object to the result array and the date to the map
+                    if (!dateMap.has(date)) {
+                        labels.push(date);
+                        const Prices = JSON.parse(obj.price);
+                        for (let [key, value] of Object.entries(Prices)) {
+                        if (!datasets[key]) {
+                          datasets[key] = {
+                            label: key,
+                            backgroundColor: 'rgba(0, 0, 0, 0)', // Transparent background
+                            borderColor: getRandomColor(), // Function to get random color
+                            data: [],
+                            fill: false
+                          };
+                        }
+                        datasets[key].data.push(value);
+                        }
+                        dateMap.set(date, obj);
+                    }
+                });
+
+
+                // Function to generate a random color
+                function getRandomColor() {
+                  const r = Math.floor(Math.random() * 255);
+                  const g = Math.floor(Math.random() * 255);
+                  const b = Math.floor(Math.random() * 255);
+                  return `rgb(${r}, ${g}, ${b})`;
+                }
+                // Iterate over the dataMap to populate the datasets
+
+                const datasetsArray = Object.values(datasets);
+                console.log(datasetsArray);
+                return [labels,datasetsArray];
+            }
+            function processAndUniqueData(dataList) {
+                const uniqueDataMap = {};
+
+                dataList.forEach((item) => {
+                    const name = item.name;
+                    const prices = JSON.parse(item.prices); // Parse the JSON string to an object
+
+                    if (!uniqueDataMap[name]) {
+                        uniqueDataMap[name] = {
+                            name: name,
+                            prices: [
+                                prices.ADULT,  // minPrice for ADULT
+                                prices.ADULT,  // maxPrice for ADULT
+                                prices.CHILD,  // minPrice for CHILD
+                                prices.CHILD   // maxPrice for CHILD
+                            ],
+                            change_7d : item.change_7d,
+                            change_30d : item.change_30d
+
+                        };
+                    } else {
+                        uniqueDataMap[name].prices[0] = Math.min(uniqueDataMap[name].prices[0], prices.ADULT);
+                        uniqueDataMap[name].prices[1] = Math.max(uniqueDataMap[name].prices[1], prices.ADULT);
+                        uniqueDataMap[name].prices[2] = Math.min(uniqueDataMap[name].prices[2], prices.CHILD);
+                        uniqueDataMap[name].prices[3] = Math.max(uniqueDataMap[name].prices[3], prices.CHILD);
+                    }
+                });
+
+                // Convert the map back to an array
+                return Object.values(uniqueDataMap);
+            }
+
+            function fillInfoBox(tourId,tourData){
+                let infoBox = document.getElementById('modalContent')
+                //infoBox.innerHTML = ''
+
+
+
+                /*infoBox.innerHTML=`<div class="container calendar">
+                        <h2 class="text-center">Calendar</h2>
+                        <div id="calendar"></div>
+                        <div class="form-group mt-3">
+                            <label for="coloredDaysInput">Enter days to color (comma-separated):</label>
+                            <input type="text" class="form-control" id="coloredDaysInput" placeholder="e.g., 5,15,25">
+                            <button id="updateCalendarButton" class="btn btn-primary mt-2" >Update Calendar</button>
+                        </div>
+                    </div>`;
+                document.getElementById('updateCalendarButton').addEventListener('click', updateCalendar);
+                */
+
+
+                console.log("PAX: ",tourData[tourId][0].pax);
+                let dateCell = document.createElement('td');
+
+
+                document.getElementById('tourName_info').innerText = tourData[tourId][0].name;
+                let visualContainer = document.createElement('div');
+                visualContainer.classList.add("infoModal");
+                let chart = document.createElement('canvas');
+                chart.classList.add('myChart');
+                const ctx = chart.getContext('2d');
+                const chartValues = chartDataExtract(tourData[tourId]);
+                console.log(chartValues)
+                const myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                      labels: chartValues[0],
+                      datasets: chartValues[1]
+                    },
+                    options: {
+                      scales: {
+                        yAxes: [{
+                          ticks: {
+                            beginAtZero: true,
+                          }
+                        }]
+                      }
+                    },
+                  });
+                let row1 = document.createElement("row");
+                let col11 = document.createElement("div");
+                col11.innerHTML = `<p style="font-size: medium;font-weight: bold;">Dates    </p>`
+                col11.classList.add("col-4")
+                row1.style.border="0.1px solid black";
+                row1.style.padding='5px';
+                let col12 = document.createElement("div");
+                col12.classList.add("col-4")
+                let col13 = document.createElement("div");
+                col13.classList.add("col-4");
+
+
+
+
+                let row2 = document.createElement("row");
+                row2.style.border="0.1px solid black";
+                row2.style.padding='5px';
+                let col21 = document.createElement("div");
+                col21.classList.add("col-4")
+                let col22 = document.createElement("div");
+                col22.classList.add("col-4")
+                let col23 = document.createElement("div");
+                col23.classList.add("col-4");
+
+
+
+
+                let row3 = document.createElement("row");
+                row3.style.border="0.1px solid black";
+                row3.style.padding='5px';
+                let col31 = document.createElement("div");
+                col31.classList.add("col-4")
+                let col32 = document.createElement("div");
+                col32.classList.add("col-4")
+                let col33 = document.createElement("div");
+                col33.classList.add("col-4")
+                col33.appendChild(chart);
+
+
+
+
+
+                let availableDates = [];
+                let availablePrices = [];
+                const dateBox = document.createElement('div');
+                dateBox.classList.add('mosaic-container') ;
+                dateBox.id="dates";
+
+                tourData[tourId].forEach(tour => {
+                    const dateItem = document.createElement('div');
+                    dateItem.classList.add('mosaic-item');
+                    const paxNum = document.createElement('div');
+                    paxNum.classList.add("corner-number");
+                    paxNum.innerText= "5";
+                    dateItem.innerText = tour.date;
+
+                    dateItem.appendChild(paxNum);
+                    dateBox.appendChild(dateItem);
+
+                });
+                col11.appendChild(dateBox);
+                row1.appendChild(col11);
+                row1.appendChild(col12);
+                row1.appendChild(col13);
+
+                row2.appendChild(col21);
+                row2.appendChild(col22);
+                row2.appendChild(col23);
+
+                row3.appendChild(col31);
+                row3.appendChild(col32);
+                row3.appendChild(col33);
+
+                infoBox.appendChild(row1);
+                infoBox.appendChild(row2);
+                infoBox.appendChild(row3);
+
+
+                infoBox.appendChild(visualContainer);
+
+            }
+
+            function generateTable(tourData){
+                const toursTable = document.getElementById("tours_table");
+                Object.keys(tourData).forEach(tourId => {
+
+                    let newRow = document.createElement('tr');
+                    newRow.classList.add("tourRow");
+                    newRow.addEventListener('click',()=>{
+                        const tourInfoBox = document.getElementById('tourInfo');
+                        fillInfoBox(tourId,tourData);
+
+                        $('#infoModal').modal('show');
+                    });
+                    let IdCell = document.createElement('td');
+                    let nameCell = document.createElement('td');
+                    IdCell.innerText= tourId
+
+                    nameCell.innerText = tourData[tourId][0].name;
+
+                    let infoCell = document.createElement('td');
+
+                    infoCell.innerText = tourData[tourId][0].info;
+
+                    newRow.appendChild(IdCell);
+
+                    newRow.appendChild(nameCell);
+
+                    newRow.appendChild(infoCell);
+
+                    toursTable.appendChild(newRow)
+              });
+
+            }
+            function fetchNameNew(mainCollection,subList){
+
+
+                fetch(`/get-names/${mainCollection}`)
+                    .then(response => response.json())
+                    .then(names => {
+
+                        const groupedData = names.reduce((acc, item) => {
+                            if (!acc[item.tour_id]) {
+                                acc[item.tour_id] = [];
+                            }
+                            acc[item.tour_id].push(item);
+                            return acc;
+                        }, {});
+                        const toursContainer = document.getElementById('mainData');
+                        toursContainer.innerHTML = '';
+                        const toursID = document.createElement("div");
+                        const toursInfo = document.createElement("div");
+                        toursInfo.id = "tourInfo";
+                        const toursTable = document.createElement("table");
+                        toursTable.id = "tours_table"
+                        toursTable.classList.add('table', 'table-striped', 'mt-2', 'expandable-content');
+                        const headerRow = document.createElement('tr');
+                        ['ID', 'Name', 'Info'].forEach(headerText => {
+                            const th = document.createElement('th');
+                            th.textContent = headerText;
+                            headerRow.appendChild(th);
+                        });
+                        toursTable.appendChild(headerRow);
+                        toursID.appendChild(toursTable)
+                        toursContainer.appendChild(toursID);
+                        toursContainer.appendChild(toursInfo);
+
+                        //const uniqueData = processAndUniqueData(names);
+                        generateTable(groupedData);
+                        console.log(groupedData);
+                        Object.keys(groupedData).forEach(tourId => {
+                            const tourGroup = groupedData[tourId];
+
+                            // Create a container for the current tour_id
+
+
+                            /*
+
+                            const container = document.createElement('div');
+
+                            container.classList.add('container');
+
+                            // Add a title for the tour_id
+                            const title = document.createElement('h1');
+                            title.textContent = `Tour ID: ${tourId}`;
+                            container.appendChild(title);
+
+                            // Add each tour item to the container
+                            tourGroup.forEach(item => {
+                                const tourInfo = document.createElement('div');
+                                tourInfo.classList.add('tour-info');
+
+                                // Create and add image
+
+                                // Create and add name
+                                const name = document.createElement('h4');
+                                name.textContent = item.name;
+                                tourInfo.appendChild(name);
+
+                                // Create and add info
+                                const info = document.createElement('p');
+                                info.textContent = item.info;
+                                tourInfo.appendChild(info);
+
+                                // Create and add price
+                                const price = document.createElement('p');
+                                price.textContent = `Price: ${JSON.parse(item.price).GENERAL || JSON.parse(item.price).SMALL_GROUP} ${item.currency}`;
+                                tourInfo.appendChild(price);
+
+                                // Create and add date
+                                const date = document.createElement('p');
+                                date.textContent = `Date: ${item.date}`;
+                                tourInfo.appendChild(date);
+
+                                // Add the tour info to the container
+                                container.appendChild(tourInfo);
+                            });
+
+                            // Add the container to the tours section
+                            toursContainer.appendChild(container);
+                            */
+                        });
+                        //toggleExpand(subLi);
+                    });
+            }
+
+            function fetchNames(mainCollection, subLi) {
+                fetch(`/get-names/${mainCollection}`)
+                    .then(response => response.json())
+                    .then(names => {
+                        console.log(names)
+                        const mainC = document.getElementById("mainData");
+                        let table = mainC.querySelector("table");
+                        if (!table) {
+                            table = document.createElement('table');
+                            table.classList.add('table', 'table-striped', 'mt-2', 'expandable-content');
+                            mainC.appendChild(table);
+                        }else{
+                            table.innerHTML = '';
+                        }
+
+
+                        const headerRow = document.createElement('tr');
+                        ['Name', 'MinPrice', 'MaxPrice', 'Change in 7d', 'Change in 30d'].forEach(headerText => {
+                            const th = document.createElement('th');
+                            th.textContent = headerText;
+                            headerRow.appendChild(th);
+                        });
+                        table.appendChild(headerRow);
+
+                        const uniqueData = processAndUniqueData(names);
+                        uniqueData.forEach(nameData => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${nameData.name}</td>
+                                <td>$${nameData.prices[0].toFixed(2)}</td>
+                                <td>$${nameData.prices[1].toFixed(2)}</td>
+                                <td>${nameData.change_7d.toFixed(2)}%</td>
+                                <td>${nameData.change_30d.toFixed(2)}%</td>
+                            `;
+                            table.appendChild(row);
+                            console.log(row)
+                        });
+
+                        //toggleExpand(subLi);
+                    });
+            }
+
+            function toggleExpand(navItem) {
+                let content = navItem.querySelector('.expandable-content');
+                if (navItem.classList.contains('expanded')) {
+                    $(content).collapse('hide');
+                    navItem.classList.remove('expanded');
+                } else {
+                    $(content).collapse('show');
+                    navItem.classList.add('expanded');
+                }
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+    <script src="{{ url_for('static', filename='calender/calender.js') }}"></script>
+
+</body>
+</html>
