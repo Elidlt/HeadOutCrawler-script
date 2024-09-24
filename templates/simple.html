@@ -45,6 +45,20 @@
         .nav-item {
             position: relative;
         }
+
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tour-cell {
+            font-weight: bold;
+            color: #227B94;
+        }
+        .money-sign {
+            font-size: 0.8em;
+            color: grey;
+        }
         .sidebar {
 
             position:fixed;
@@ -522,7 +536,9 @@
 
             function fillInfoBox(tourId,tourData){
                 let infoBox = document.getElementById('modalContent')
-                //infoBox.innerHTML = ''
+                while (infoBox.firstChild) {
+                    infoBox.removeChild(infoBox.firstChild);
+                }
 
 
 
@@ -569,7 +585,6 @@
                   });
                 let row1 = document.createElement("row");
                 let col11 = document.createElement("div");
-                col11.innerHTML = `<p style="font-size: medium;font-weight: bold;">Dates    </p>`
                 col11.classList.add("col-4")
                 row1.style.border="0.1px solid black";
                 row1.style.padding='5px';
@@ -609,25 +624,99 @@
 
 
 
+                let availableTimes = [];
                 let availableDates = [];
-                let availablePrices = [];
+                const timeBox = document.createElement("div");
+                timeBox.classList.add('dropdown') ;
+                let timeToggle = document.createElement("button");
+                timeToggle.classList.add("dropdown-toggle");
+                timeToggle.textContent = '';
+                let labelTime = document.createElement('label');
+                labelTime.textContent = 'Available Times:';
+                labelTime.setAttribute('for', 'dropdown-toggle');
+                labelTime.style.marginRight = '10px';
+                let menuTime = document.createElement('div');
+                menuTime.classList.add('dropdown-menu');
+
+
                 const dateBox = document.createElement('div');
-                dateBox.classList.add('mosaic-container') ;
-                dateBox.id="dates";
-
+                dateBox.classList.add('dropdown') ;
+                let dateToggle = document.createElement("button");
+                dateToggle.classList.add("dropdown-toggle");
+                dateToggle.textContent = '';
+                let label = document.createElement('label');
+                label.textContent = 'Available Dates:';
+                label.setAttribute('for', 'dropdown-toggle');
+                label.style.marginRight = '10px';
+                let menu = document.createElement('div');
+                menu.classList.add('dropdown-menu');
+                //dateBox.id="dates";
+                let currentDate = new Date();
                 tourData[tourId].forEach(tour => {
-                    const dateItem = document.createElement('div');
-                    dateItem.classList.add('mosaic-item');
-                    const paxNum = document.createElement('div');
-                    paxNum.classList.add("corner-number");
-                    paxNum.innerText= "5";
-                    dateItem.innerText = tour.date;
+                    if (!availableDates.includes(tour.date) && new Date(tour.date)>= currentDate){
+                        let item = document.createElement('a');
+                        item.href = '#';
+                        item.classList.add('dropdown-item');
+                        item.textContent = tour.date;
+                        item.addEventListener('click',function () {
+                            dateToggle.innerText = "";
+                            menu.innerHTML = '';
+                            dateToggle.innerText =item.innerText;
+                            menu.classList.remove('show');
+                        })
+                        menu.appendChild(item);
+                        availableDates.push(tour.date);
+                    }
 
-                    dateItem.appendChild(paxNum);
-                    dateBox.appendChild(dateItem);
+
+
+                    if(availableTimes.includes(tour.end_time)){
+                        console.log(availableTimes);
+                    }
+                    else {
+
+                        let TimeItem = document.createElement('a');
+                        TimeItem.href = '#';
+                        TimeItem.classList.add('dropdown-item');
+                        TimeItem.textContent = tour.end_time;
+                        TimeItem.addEventListener('click',function () {
+
+                            timeToggle.innerText = "";
+                            timeToggle.innerText =TimeItem.innerText;
+                            menuTime.classList.remove('show');
+                        })
+                        menuTime.appendChild(TimeItem);
+                        availableTimes.push(tour.end_time);
+                    }
 
                 });
+
+                timeBox.appendChild(timeToggle);
+                timeBox.appendChild(menuTime);
+                col11.appendChild(labelTime);
+                col11.appendChild(timeBox);
+                timeToggle.addEventListener('click', function() {
+                    menuTime.classList.toggle('show');
+                });
+
+                dateBox.appendChild(dateToggle);
+
+                dateBox.appendChild(menu);
+                col11.appendChild(label);
                 col11.appendChild(dateBox);
+
+                dateToggle.addEventListener('click', function() {
+                    menu.classList.toggle('show');
+                });
+                window.addEventListener('click', function(event) {
+                    if (!dateBox.contains(event.target)) {
+                        menu.classList.remove('show');
+                    }
+                    if (!timeBox.contains(event.target)) {
+                        menuTime.classList.remove('show');
+                    }
+                });
+
                 row1.appendChild(col11);
                 row1.appendChild(col12);
                 row1.appendChild(col13);
@@ -648,35 +737,97 @@
                 infoBox.appendChild(visualContainer);
 
             }
+            function summarizeFuturePax(items) {
+                let currentDate = Date.now(); // Get current date in Unix timestamp
+
+                // Filter items based on the time field
+                let futureItems = items.filter(item => new Date(item.date) >= currentDate);
+
+                // Function to parse, filter, and summarize the values
+                let summary = {};
+
+                // Summarize the values
+                futureItems.forEach(item => {
+                    for (let [key, value] of Object.entries(JSON.parse(item.pax))) {
+                        if (summary[key]) {
+                            summary[key] += value;
+                        } else {
+                            summary[key] = value;
+                        }
+                    }
+                });
+
+                // Convert the summary object to a formatted string
+                let spanElements = [];
+                for (let [key, value] of Object.entries(summary)) {
+                    let spanKey = document.createElement('span');
+                    spanKey.classList.add('money-sign');
+                    spanKey.textContent = key;
+
+                    let spanValue = document.createElement('span');
+                    spanValue.classList.add('tour-cell');
+                    spanValue.textContent =" : "+ value;
+
+                    spanElements.push(spanKey, spanValue);
+                }
+
+                return spanElements;
+            }
 
             function generateTable(tourData){
                 const toursTable = document.getElementById("tours_table");
                 Object.keys(tourData).forEach(tourId => {
 
                     let newRow = document.createElement('tr');
-                    newRow.classList.add("tourRow");
+                    newRow.classList.add("tourRow",'tooltip-container');
                     newRow.addEventListener('click',()=>{
                         const tourInfoBox = document.getElementById('tourInfo');
                         fillInfoBox(tourId,tourData);
 
                         $('#infoModal').modal('show');
+
                     });
+                    let sourceItem = tourData[tourId];
+                    newRow.title=sourceItem[sourceItem.length-1].info;
                     let IdCell = document.createElement('td');
+                    IdCell.classList.add("tour-cell");
+
                     let nameCell = document.createElement('td');
+                    nameCell.classList.add("tour-cell");
                     IdCell.innerText= tourId
 
-                    nameCell.innerText = tourData[tourId][0].name;
+                    nameCell.innerText = sourceItem[sourceItem.length-1].name;
 
-                    let infoCell = document.createElement('td');
+                    let priceCell = document.createElement('td');
+                    priceCell.classList.add("tour-cell");
+                    let prices = JSON.parse(sourceItem[sourceItem.length-1].price);
+                    let values = Object.values(prices).filter(value => value !== 0);
+                    let sortedRange = "";
+                    if (values.length === 1) {
+                        sortedRange = values[0].toString();
+                    }else{
+                        values.sort((a, b) => a - b);
+                        sortedRange = `${values[0]} - ${values[values.length - 1]}`;
+                    }
 
-                    infoCell.innerText = tourData[tourId][0].info;
+                    priceCell.innerText = sortedRange;
+                    let SignAED = document.createElement('span');
+                    SignAED.classList.add("money-sign");
+                    SignAED.innerText = " Aed"
+                    let PaxCell = document.createElement("td");
+                    PaxCell.classList.add("tour-cell");
+                    summarizeFuturePax(sourceItem).forEach(item =>{
+                        PaxCell.appendChild(item);
+                    });
 
+
+                    priceCell.appendChild(SignAED);
                     newRow.appendChild(IdCell);
 
                     newRow.appendChild(nameCell);
 
-                    newRow.appendChild(infoCell);
-
+                    newRow.appendChild(priceCell);
+                    newRow.appendChild(PaxCell);
                     toursTable.appendChild(newRow)
               });
 
@@ -704,7 +855,7 @@
                         toursTable.id = "tours_table"
                         toursTable.classList.add('table', 'table-striped', 'mt-2', 'expandable-content');
                         const headerRow = document.createElement('tr');
-                        ['ID', 'Name', 'Info'].forEach(headerText => {
+                        ['ID', 'Name', 'Price',"Available Pax"].forEach(headerText => {
                             const th = document.createElement('th');
                             th.textContent = headerText;
                             headerRow.appendChild(th);

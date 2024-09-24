@@ -121,12 +121,16 @@ def get_productItems(pId, ParentElement):
         for tId in tours:
             print(tId)
             for timeProfile in tours[tId]:
-                print(timeProfile)
-                priceList = timeProfile['priceProfile']['persons']
-                prices = {priceList[i]['type']: priceList[i]['listingPrice'] for i in range(len(priceList))}
-                paxList = timeProfile['paxAvailability']
-                pax = {paxList[i]['paxTypes'][0]:paxList[i]['remaining'] for i in range(len(paxList))}
-
+                try:
+                    priceList = timeProfile['priceProfile']['persons']
+                    prices = {priceList[i]['type']: priceList[i]['listingPrice'] for i in range(len(priceList))}
+                except IndexError:
+                    prices = {}
+                try:
+                    paxList = timeProfile['paxAvailability']
+                    pax = {paxList[i]['paxTypes'][0]: paxList[i]['remaining'] for i in range(len(paxList))}
+                except IndexError:
+                    pax = {}
                 toursData.append({
                     "baseId": pId,
                     "tourId": int(tId), "category": category,
@@ -135,7 +139,7 @@ def get_productItems(pId, ParentElement):
                     "info": tourInfo[int(tId)],
                     "date": day,
                     "start": timeProfile['startTime'], "end": timeProfile['endTime'],
-                    "price": prices,"pax":pax,
+                    "price": prices, "pax": pax,
                     "currency": 'AED', "img": imageUrl['url'],
                     "combo": combo})
     return toursData
@@ -199,7 +203,7 @@ def main():
     cnt = 0
     for pId in products:
         #if 57 > cnt > 25:
-        if pId == '8583':
+        if pId != '8583':
             cnt += 1
             df_data.append(get_productItems(pId, products[pId]))
         else:
@@ -209,7 +213,6 @@ def main():
 
     # Step 2: Convert to DataFrame
     df = pd.DataFrame(flattened_list)
-    df.to_csv("TEST.csv")
     # Step 3: Save to CSV
     insert_data(flattened_list, round(time.time()))
 

@@ -2,7 +2,7 @@ import json
 import time
 from flask import Flask, jsonify, request, g, render_template
 import sqlite3
-
+from main_1 import Run_Crawler
 app = Flask(__name__)
 
 DATABASE = 'tours.db'
@@ -16,9 +16,8 @@ def get_db():
 
 @app.route('/update_database')
 def update_database():
-    total_items = 60  # Example total number of items
-    for i in range(1, total_items + 1):
-        time.sleep(0.1)  # Simulate time-consuming task
+      # Example total number of items
+    Run_Crawler()
     return jsonify({'status': 'done'})
 
 @app.teardown_appcontext
